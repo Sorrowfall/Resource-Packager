@@ -1,30 +1,30 @@
 from os import getenv, walk, path, listdir, chdir, getcwd, mkdir
-from zipfile import ZipFile
 from shutil import rmtree, copy, copytree
+from string import ascii_lowercase
+from json import load, dump, JSONDecodeError
+from random import choice
+from zipfile import ZipFile
 from hashlib import sha1
 
-def generate_zip(filename: str, items: list, output_folder: str = 'build'):
-    """Generate .zip files.
+cwd = getcwd()
+
+def gen_temp_folder(filename: str, items: list, output_folder: str = 'build') -> str:
+    """Generate a temporary folder for further processing.
 
     Args:
-        filename (str): Name of the finished .zip file.
-        items (list): Items to include inside of the .zip file.
-        output_folder (str, optional): What folder to output the .zip in. Defaults to 'build'.
+        items (list): Items to put inside of the temporary folder.
     """
-    back = getcwd()
-    temp = path.join(back, 'temp')
-    # Make a new temp folder
-    a = ''
+    temp = path.join(cwd, 'temp')
+    # make a new temp folder
     while path.exists(temp):
-        a += 'a'
-        temp = path.join(back, 'temp'+a)
+        temp = path.join(cwd, temp+choice(list(ascii_lowercase)))
     mkdir(temp)
     # loop over specified items
     for item in items:
         if path.isfile(item):
             copy(item, temp)
         elif path.isdir(item):
-            item = path.join(back, item)
+            item = path.join(cwd, item)
             for newfile in listdir(item):
                 newfile = path.join(item, newfile)
                 if path.isfile(newfile):
@@ -33,20 +33,52 @@ def generate_zip(filename: str, items: list, output_folder: str = 'build'):
                     copytree(path.dirname(newfile), temp, dirs_exist_ok=True)
         else:
             print("Could not find path {} in the main directory".format(item))
+    return temp
+
+def gen_zip(filename: str, input_folder: str, output_folder: str = 'build'):
+    """Generate .zip files.
+
+    Args:
+        filename (str): Name of the finished .zip file.
+        input_folder (list): What folder to generate the .zip from.
+        output_folder (str, optional): What folder to output the .zip in. Defaults to 'build'.
+    """
     if not path.exists(output_folder):
         mkdir(output_folder)
+    if not path.exists(input_folder):
+        raise InputException("couldn't find input folder")
     with ZipFile(output_folder + filename+".zip", 'w') as file:
-        for item in listdir('temp'):
-            chdir(temp)
+        chdir(input_folder)
+        for item in listdir():
             if path.isfile(item):
                 file.write(item)
             else:
                 for filepath, sub, filenames in walk(item):
                     for filename in filenames:
                         file.write(path.join(filepath, filename))
-    chdir(back)
-    if path.exists(temp):
-        rmtree(temp)
+    chdir(cwd)
+
+def optim_jsons(input_folder: str):
+    """Optimize json (and .mcmeta json) files.
+
+    Args:
+        input_folder (list): What folder to optimize jsons in.
+    """
+    walk = os.walk(input_folder)
+    for root, d, files in walk:
+        for file in files:
+            if file.endswith('.json') or file.endswith('.mcmeta'):
+                name = path.join(root, file)
+                try:
+                    with open(name, 'r') as read_file:
+                        try:
+                            json = load(read_file)
+                        except JSONDecodeError:
+                            continue
+                    with open(name, 'w') as write_file:
+                        dump(json, write_file, separators=(',', ':'))
+                except UnicodeEncodeError:
+                    continue
 
 def generate_sha1(filename: str, output_folder: str):
     """Generate .zip files.
@@ -68,25 +100,30 @@ def generate_sha1(filename: str, output_folder: str):
 class EnvironException(Exception):
     pass
 
+class InputException(Exception):
+    pass
+
 if __name__ == '__main__':
-    filename = getenv('FILENAME')
+    # declare variables
+    filename = getenv('INPUT_FILENAME')
     if not filename:
         raise EnvironException("'filename' field is required")
-    items = getenv('ITEMS')
-    print(items)
+    items = getenv('INPUT_ITEMS')
     if not items:
         raise EnvironException("'items' field is required")
-    else:
+    elif not isinstance(items, list):
         items = items.split('\n')
-    print(items)
-    gen_sha1 = getenv('GEN-SHA1')
-    if not gen_sha1:
-        gen_sha1 = '0'
-    output_folder = getenv('OUTPUT-FOLDER')
-    if not output_folder:
-        output_folder = 'build'
+    gen_sha1 = getenv('INPUT_GEN-SHA1')
+    output_folder = getenv('INPUT_OUTPUT-FOLDER', 'build')
     if not output_folder.endswith('/'):
         output_folder += '/'
-    generate_zip(filename, items, output_folder)
-    if gen_sha1.lower() in ("yes", "y", "true", "t", "1"):
+    optimize_jsons = getenv('INPUT_OPTIMIZE-JSONS')
+    # run logic
+    temp_folder = gen_temp_folder(items)
+    if str(optimize_jsons.lower()) in ("yes", "y", "true", "t", "1"):
+        opt_jsons(temp_folder)
+    gen_zip(filename, temp_folder, output_folder)
+    if path.exists(temp_folder):
+        rmtree(temp_folder)
+    if str(gen_sha1.lower()) in ("yes", "y", "true", "t", "1"):
         generate_sha1(filename, output_folder)
