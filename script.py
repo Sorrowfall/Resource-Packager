@@ -1,17 +1,28 @@
-from os import environ, walk, path, listdir, chdir, getcwd, mkdir
+from os import getenv, walk, path, listdir, chdir, getcwd, mkdir
 from zipfile import ZipFile
 from shutil import rmtree, copy, copytree
 from hashlib import sha1
 
-back = getcwd()
-temp = path.join(back, 'temp')
-def generate_zip(filename, items, output_folder):
+def generate_zip(filename: str, items: list, output_folder: str = 'build'):
+    """Generate .zip files.
+
+    Args:
+        filename (str): Name of the finished .zip file.
+        items (list): Items to include inside of the .zip file.
+        output_folder (str, optional): What folder to output the .zip in. Defaults to 'build'.
+    """
     back = getcwd()
-    if not path.exists(temp):
-        mkdir(temp)
+    temp = path.join(back, 'temp')
+    # Make a new temp folder
+    a = ''
+    while path.exists(temp):
+        a += 'a'
+        temp = path.join(back, 'temp'+a)
+    mkdir(temp)
+    # loop over specified items
     for item in items:
         if path.isfile(item):
-            copy(file, temp)
+            copy(item, temp)
         elif path.isdir(item):
             item = path.join(back, item)
             for newfile in listdir(item):
@@ -37,28 +48,42 @@ def generate_zip(filename, items, output_folder):
     if path.exists(temp):
         rmtree(temp)
 
-BLOCKSIZE = 65536
+def generate_sha1(filename: str, output_folder: str):
+    """Generate .zip files.
 
-def generate_sha1(filename, output_folder):
+    Args:
+        filename (str): Name of the .zip file to get the sha1 hash from.
+        output_folder (str, optional): What folder to output the .sha1 file in. Defaults to 'build'.
+    """
     hasher = sha1()
-    with open(output_folder + filename+".zip", 'rb') as in_file:
-        buf = in_file.read(BLOCKSIZE)
+    with open(output_folder + filename+".zip", 'rb') as file:
+        buf = file.read(65536)
         while len(buf) > 0:
             hasher.update(buf)
-            buf = in_file.read(BLOCKSIZE)
-    with open(output_folder + filename+".sha1", 'w+') as out_file:
-        out_file.write(hasher.hexdigest())
+            buf = file.read(65536)
+    # Save the hash
+    with open(output_folder + filename+".sha1", 'w+') as file:
+        file.write(hasher.hexdigest())
+
+class EnvironException(Exception):
+    pass
 
 if __name__ == '__main__':
-    filename = environ['FILENAME']
-    items = environ['ITEMS'].split('\n')
-    if 'GEN-SHA1' in environ:
-        gen_sha1 = environ['GEN-SHA1']
+    filename = getenv('FILENAME')
+    if not filename:
+        raise EnvironException("'filename' field is required")
+    items = getenv('ITEMS')
+    print(items)
+    if not items:
+        raise EnvironException("'items' field is required")
     else:
+        items = items.split('\n')
+    print(items)
+    gen_sha1 = getenv('GEN-SHA1')
+    if not gen_sha1:
         gen_sha1 = '0'
-    if 'OUTPUT-FOLDER' in environ:
-        output_folder = environ['OUTPUT-FOLDER']
-    else:
+    output_folder = getenv('OUTPUT-FOLDER')
+    if not output_folder:
         output_folder = 'build'
     if not output_folder.endswith('/'):
         output_folder += '/'
