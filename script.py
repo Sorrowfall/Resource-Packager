@@ -91,11 +91,11 @@ if __name__ == '__main__':
     if not isinstance(items, list):
         items = items.split('\\n')
 
-    output_folder = Path(getenv('INPUT_OUTPUT_FOLDER', 'build'))
+    output_folder = Path(getenv('INPUT_OUTPUT-FOLDER', 'build'))
     if not output_folder.exists(): output_folder.mkdir()
 
-    gen_sha1 = is_true(getenv('INPUT_GEN_SHA1'))
-    optimize_jsons = is_true(getenv('INPUT_OPTIMIZE_JSONS'))
+    gen_sha1 = is_true(getenv('INPUT_GEN-SHA1'))
+    optimize_jsons = is_true(getenv('INPUT_OPTIMIZE-JSONS'))
 
     # run logic
 

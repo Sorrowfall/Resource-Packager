@@ -39,7 +39,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2
       # copy-paste this part for however many packs you want to build
-      - name: Build resource pack
+      - name: Build Pack
         uses: Sorrowfall/Resource-Packager@main
         with:
           # The name of the built pack
@@ -57,6 +57,7 @@ jobs:
           # Useful for server resource packs
           # default: false
           gen-sha1: false
+      # copy-paste down to here
       - name: Publish
         uses: github-actions-x/commit@v2.8
         with:
@@ -64,7 +65,7 @@ jobs:
           push-branch: 'build'
           commit-message: 'build packs'
           name: Builder[bot]
-          email: my.github@email.com 
+          email: my.github@email.com
 ```
 
 Generate resource packs and make a new release
@@ -79,7 +80,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2
       # copy-paste this part for however many packs you want to build
-      - name: Build resource pack
+      - name: Build Pack
         uses: Sorrowfall/Resource-Packager@main
         with:
           # The name of the built pack
@@ -97,11 +98,13 @@ jobs:
           # Useful for server resource packs
           # default: false
           gen-sha1: false
-      - name: Publish
-        uses: ncipollo/release-action@v1
+      # copy-paste down to here
+      - name: Create Release
+        uses: meeDamian/github-release@2.0
         with:
-          artifacts: "release.tar.gz,foo/*.txt"
-          bodyFile: "body.md"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          uses: github-actions-x/commit@v2.8
+          name: ${{ github.event.head_commit.message }}
+          tag: test
+          gzip: false
+          files: >
+            output/TestPack.zip
 ```
