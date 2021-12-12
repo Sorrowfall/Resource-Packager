@@ -1,5 +1,4 @@
 from os import getenv
-from dotenv import load_dotenv
 from pathlib import Path
 from shutil import copy2, make_archive, rmtree, copytree, make_archive
 from json import load, dump, JSONDecodeError
@@ -79,8 +78,6 @@ class EnvironException(Exception):
 
 if __name__ == '__main__':
 
-    load_dotenv()
-
     # declare variables
 
     filename = getenv('INPUT_FILENAME', None)
@@ -96,6 +93,8 @@ if __name__ == '__main__':
 
     gen_sha1 = is_true(getenv('INPUT_GEN-SHA1'))
     optimize_jsons = is_true(getenv('INPUT_OPTIMIZE-JSONS'))
+
+    print(output_folder)
 
     # run logic
 
