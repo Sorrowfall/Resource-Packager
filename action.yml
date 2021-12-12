@@ -4,18 +4,21 @@ author: 'Soumeh'
 inputs:
   filename:
     description: 'The name of the built pack'
+    required: true
   items:
     description: 'The folders / files to be built into the pack'
+    required: true
+  output-folder:
+    description: 'What directory to build files inside.'
+    default: 'build'
+    required: false
   optimize-jsons:
     description: "Whether or not to optimize any .json (and .mcmeta json) files to lower their size."
     default: 'true'
-  gen-sha1:
-    description: 'Whether or not to generate a Sha1 hash of the built pack'
-    default: 'false'
     required: false
-  output-folder:
-    description: 'The directory to output files in'
-    default: 'build'
+  gen-sha1:
+    description: 'Whether or not to generate a Sha1 hash of the built pack. Useful for Server Resource Packs.'
+    default: 'false'
     required: false
 runs:
   using: "docker"
