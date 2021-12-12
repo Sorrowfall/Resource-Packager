@@ -24,6 +24,7 @@ inputs:
     required: false
 branding:
   icon: "folder-plus"
+  color: "red"
 runs:
   using: "composite"
   steps:
