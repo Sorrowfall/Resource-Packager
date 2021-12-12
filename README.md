@@ -47,25 +47,25 @@ jobs:
           # The directories / files to be built into the pack
           # Directories take priority as they go down the list, replacing any files from the above directories
           items: |
-            32_res_textures
-            data
+            pack_textures
+            pack_data
           # What directory to output files in
           output-folder: build
           # Whether or not to optimize .json (and .mcmeta json) files
-          optimize-json: true
+          optimize-jsons: true
           # Whether or not to generate a Sha1 hash of the built pack 
           # Useful for server resource packs
           # default: false
           gen-sha1: false
       # copy-paste down to here
       - name: Publish
-        uses: github-actions-x/commit@v2.8
+        uses: EndBug/add-and-commit@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          push-branch: 'build'
-          commit-message: 'build packs'
-          name: Builder[bot]
-          email: my.github@email.com
+          author_name: Builder[bot]
+          author_email: mail@unmail.com
+          branch: 'build'
+          branch_mode: create
+          message: 'Build pack(s)'
 ```
 
 Generate resource packs and make a new release
@@ -88,12 +88,12 @@ jobs:
           # The directories / files to be built into the pack
           # Directories take priority as they go down the list, replacing any files from the above directories
           items: |
-            32_res_textures
-            data
+            pack_textures
+            pack_data
           # What directory to output files in
           output-folder: build
           # Whether or not to optimize .json (and .mcmeta json) files
-          optimize-json: true
+          optimize-jsons: true
           # Whether or not to generate a Sha1 hash of the built pack 
           # Useful for server resource packs
           # default: false
@@ -107,5 +107,5 @@ jobs:
           tag: test
           gzip: false
           files: >
-            output/TestPack.zip
+            output/MyPack.zip
 ```

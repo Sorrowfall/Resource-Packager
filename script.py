@@ -1,8 +1,7 @@
-from argparse import ArgumentParser
 from sys import argv
 from pathlib import Path
 from shutil import copy2, make_archive, rmtree, copytree
-from json import load, loads, dump, JSONDecodeError
+from json import load, dump, JSONDecodeError
 from hashlib import sha1
 
 
