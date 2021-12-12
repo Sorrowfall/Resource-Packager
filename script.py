@@ -83,6 +83,9 @@ if __name__ == '__main__':
 
     # declare variables
 
+    print(listdir)
+    print(list(listdir))
+
     filename = getenv('INPUT_FILENAME', None)
     if not filename: raise EnvironException("'filename' field is required")
 
