@@ -18,17 +18,14 @@ def gen_pack(items: list, filename: str = 'pack', output_folder: Path = Path('bu
     temp = Path(f'{output_folder}/temp')
     if not temp.exists(): temp.mkdir()
 
-    print(list(listdir))
     for item in items:
         path = Path(item)
-        print(path)
-        print(path.exists())
         if path.exists():
             copytree(path, temp, copy_function=copy_and_merge_jsons if optim_jsons else copy2, dirs_exist_ok=True)
 
     zip = make_archive(f'{output_folder}/{filename}', 'zip', temp)
 
-    #rmtree(temp)
+    rmtree(temp)
     return zip
 
 def copy_and_merge_jsons(src, dest):
@@ -83,9 +80,6 @@ if __name__ == '__main__':
 
     # declare variables
 
-    print(listdir)
-    print(list(listdir))
-
     filename = getenv('INPUT_FILENAME', None)
     if not filename: raise EnvironException("'filename' field is required")
 
@@ -99,8 +93,6 @@ if __name__ == '__main__':
 
     gen_sha1 = is_true(getenv('INPUT_GEN-SHA1'))
     optimize_jsons = is_true(getenv('INPUT_OPTIMIZE-JSONS'))
-
-    print(output_folder)
 
     # run logic
 
