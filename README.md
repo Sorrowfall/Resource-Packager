@@ -102,6 +102,7 @@ jobs:
       - name: Create Release
         uses: meeDamian/github-release@2.0
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ github.event.head_commit.message }}
           tag: test
           gzip: false
