@@ -1,26 +1,33 @@
-name: 'build-resource-pack'
-description: 'Generate .zip files from folders (and also Sha1 hashes) for Minecraft server resource packs'
-author: 'Soumeh'
+name: 'Resource Packager'
+description: 'Generate .zip files (and sha1 hashes) from files for Minecraft Server Resource Packs.'
+author: 'Sorrowfall'
 inputs:
   filename:
-    description: 'The name of the built pack'
+    description: 'What to name the built resource pack.'
+    default: 'none'
+    required: true
   items:
-    description: 'The folders / files to be built into the pack'
-  gen-sha1:
-    description: 'Whether or not to generate a Sha1 hash of the built pack'
-    default: 'false'
-    required: false
+    description: 'What folders / files to include in the resource pack.'
+    default: 'none'
+    required: true
   output-folder:
-    description: 'The directory to output files in'
+    description: 'What directory to build files inside.'
     default: 'build'
     required: false
-runs:
-  using: "docker"
-  image: "Dockerfile"
-  env:
-    FILENAME: ${{ inputs.filename }}
-    ITEMS: ${{ inputs.items }}
-    GEN-SHA1: ${{ inputs.gen-sha1 }}
-    OUTPUT-FOLDER: ${{ inputs.output-folder }}
+  optimize-jsons:
+    description: "Whether or not to optimize any .json (and .mcmeta json) files to lower their size."
+    default: 'true'
+    required: false
+  gen-sha1:
+    description: 'Whether or not to generate a Sha1 hash of the built pack. Useful for Server Resource Packs.'
+    default: 'false'
+    required: false
 branding:
   icon: "folder-plus"
+runs:
+  using: "composite"
+  steps:
+    #- run: python -m pip install -r requirements.txt
+    #  shell: bash
+    - run: python ${{ github.action_path }}/script.py "${{ inputs.filename }}" "${{ inputs.items }}" "${{ inputs.output-folder }}" "${{ inputs.optimize-jsons }}" "${{ inputs.gen-sha1 }}"
+      shell: bash

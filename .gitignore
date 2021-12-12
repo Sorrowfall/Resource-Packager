@@ -1,0 +1,6 @@
+build/
+__pycache__/
+test1/
+test2/
+.env
+test.py

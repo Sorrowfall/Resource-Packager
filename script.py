@@ -1,67 +1,97 @@
-from os import environ, walk, path, listdir, chdir, getcwd, mkdir
-from zipfile import ZipFile
-from shutil import rmtree, copy, copytree
+from sys import argv
+from pathlib import Path
+from shutil import copy2, make_archive, rmtree, copytree
+from json import load, dump, JSONDecodeError
 from hashlib import sha1
 
-back = getcwd()
-temp = path.join(back, 'temp')
-def generate_zip(filename, items, output_folder):
-    back = getcwd()
-    if not path.exists(temp):
-        mkdir(temp)
+
+def gen_pack(items: list, filename: str = 'pack', output_folder: Path = Path('build/'), optim_jsons: bool = True):
+    """Generates a compressed .zip file of Minecraft Resource Packs.
+
+    Args:
+        items (list[str]): A list of folders or files to add to the file.
+        filename (str, optional): Name of the file to generate. Defaults to 'pack'.
+        output_folder (Path, optional): What folder to output the file in. Defaults to 'build/'.
+        optim_jsons (bool, optional): Whether or not to optimize .json (and .mcmeta json) files. Defaults to True.
+    """
+
+    temp = Path(f'{output_folder}/temp')
+    if not temp.exists(): temp.mkdir()
+
     for item in items:
-        if path.isfile(item):
-            copy(file, temp)
-        elif path.isdir(item):
-            item = path.join(back, item)
-            for newfile in listdir(item):
-                newfile = path.join(item, newfile)
-                if path.isfile(newfile):
-                    copy(newfile, temp)
-                else:
-                    copytree(path.dirname(newfile), temp, dirs_exist_ok=True)
-        else:
-            print("Could not find path {} in the main directory".format(item))
-    if not path.exists(output_folder):
-        mkdir(output_folder)
-    with ZipFile(output_folder + filename+".zip", 'w') as file:
-        for item in listdir('temp'):
-            chdir(temp)
-            if path.isfile(item):
-                file.write(item)
-            else:
-                for filepath, sub, filenames in walk(item):
-                    for filename in filenames:
-                        file.write(path.join(filepath, filename))
-    chdir(back)
-    if path.exists(temp):
-        rmtree(temp)
+        path = Path(item)
+        if path.exists():
+            copytree(path, temp, copy_function=copy_and_merge_jsons if optim_jsons else copy2, dirs_exist_ok=True)
 
-BLOCKSIZE = 65536
+    zip = make_archive(f'{output_folder}/{filename}', 'zip', temp)
 
-def generate_sha1(filename, output_folder):
+    rmtree(temp)
+    return zip
+
+def copy_and_merge_jsons(src, dest):
+    if Path(src).suffix in ('.json', '.mcmeta'):
+        with open(src, 'r') as new:
+            try:
+                json = load(new)
+            except JSONDecodeError as e:
+                return print(f"Invalid .json file '{src}'")
+        if Path(dest).exists():
+            with open(dest, 'r') as original:
+                try:
+                    original = load(original)
+                    json = {**original, **json}
+                except JSONDecodeError as e:
+                    print(f"Invalid .json file '{dest}'")
+                    return copy2(src, dest)
+        with open(dest, 'w') as original:
+            dump(json, original, separators=(',', ':'))
+    else:
+        copy2(src, dest)
+
+def pack_hash_sha1(filename: str, output_folder: Path = Path('build/')) -> str:
+    """Hash .zip files for Server Resource Pack caching.
+
+    Args:
+        filename (str): Name of the .zip file to get the sha1 hash from.
+        output_folder (str, optional): What folder to output the .sha1 file in. Defaults to 'build'.
+    """
     hasher = sha1()
-    with open(output_folder + filename+".zip", 'rb') as in_file:
-        buf = in_file.read(BLOCKSIZE)
+    with open(output_folder / f"{filename}.zip", 'rb') as file:
+        buf = file.read(65536)
         while len(buf) > 0:
             hasher.update(buf)
-            buf = in_file.read(BLOCKSIZE)
-    with open(output_folder + filename+".sha1", 'w+') as out_file:
-        out_file.write(hasher.hexdigest())
+            buf = file.read(65536)
+    hash = hasher.hexdigest()
+
+    with open(output_folder / f"{filename}.sha1", 'w+') as file:
+        file.write(hash)
+
+    return hash
+
+
+def is_true(val):
+    return (str(val).lower()) in ("yes", "y", "true", "t", "1")
+
+class EnvironException(Exception):
+    pass
+
 
 if __name__ == '__main__':
-    filename = environ['FILENAME']
-    items = environ['ITEMS'].split('\n')
-    if 'GEN-SHA1' in environ:
-        gen_sha1 = environ['GEN-SHA1']
-    else:
-        gen_sha1 = '0'
-    if 'OUTPUT-FOLDER' in environ:
-        output_folder = environ['OUTPUT-FOLDER']
-    else:
-        output_folder = 'build'
-    if not output_folder.endswith('/'):
-        output_folder += '/'
-    generate_zip(filename, items, output_folder)
-    if gen_sha1.lower() in ("yes", "y", "true", "t", "1"):
-        generate_sha1(filename, output_folder)
+
+    # Variables
+
+    filename, items, output_folder, optimize_jsons, gen_sha1 = argv[1:]
+
+    if filename == 'none': raise EnvironException("'filename' field is required")
+    if items == 'none': raise EnvironException("'items' field is required")
+    items = items.split('\\n')
+    output_folder = Path(output_folder)
+    if not output_folder.exists(): output_folder.mkdir()
+    gen_sha1 = is_true(gen_sha1)
+    optimize_jsons = is_true(optimize_jsons)
+
+    # Logic
+
+    pack_zip = gen_pack(items, filename, output_folder, optimize_jsons)
+    if gen_sha1: 
+        hash = pack_hash_sha1(filename, output_folder)
