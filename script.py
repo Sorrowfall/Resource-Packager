@@ -1,7 +1,8 @@
-from os import getenv, listdir
+from argparse import ArgumentParser
+from sys import argv
 from pathlib import Path
-from shutil import copy2, make_archive, rmtree, copytree, make_archive
-from json import load, dump, JSONDecodeError
+from shutil import copy2, make_archive, rmtree, copytree
+from json import load, loads, dump, JSONDecodeError
 from hashlib import sha1
 
 
@@ -69,8 +70,8 @@ def pack_hash_sha1(filename: str, output_folder: Path = Path('build/')) -> str:
     return hash
 
 
-def is_true(boolean):
-    return (str(boolean).lower()) in ("yes", "y", "true", "t", "1")
+def is_true(val):
+    return (str(val).lower()) in ("yes", "y", "true", "t", "1")
 
 class EnvironException(Exception):
     pass
@@ -78,23 +79,19 @@ class EnvironException(Exception):
 
 if __name__ == '__main__':
 
-    # declare variables
+    # Variables
 
-    filename = getenv('INPUT_FILENAME', None)
+    filename, items, output_folder, optimize_jsons, gen_sha1 = loads(argv[1])
+
     if not filename: raise EnvironException("'filename' field is required")
-
-    items = getenv('INPUT_ITEMS', None)
     if not items: raise EnvironException("'items' field is required")
-    if not isinstance(items, list):
-        items = items.split('\\n')
-
-    output_folder = Path(getenv('INPUT_OUTPUT-FOLDER', 'build'))
+    if not isinstance(items, list): items = items.split('\\n')
+    output_folder = Path(output_folder)
     if not output_folder.exists(): output_folder.mkdir()
+    gen_sha1 = is_true(gen_sha1)
+    optimize_jsons = is_true(optimize_jsons)
 
-    gen_sha1 = is_true(getenv('INPUT_GEN-SHA1'))
-    optimize_jsons = is_true(getenv('INPUT_OPTIMIZE-JSONS'))
-
-    # run logic
+    # Logic
 
     pack_zip = gen_pack(items, filename, output_folder, optimize_jsons)
     if gen_sha1: 
