@@ -36,6 +36,8 @@ jobs:
   check-bats-version:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
       # copy-paste this part for however many packs you want to build
       - name: Build Pack
         uses: Sorrowfall/Resource-Packager@main
@@ -56,8 +58,6 @@ jobs:
           # default: false
           gen-sha1: false
       # copy-paste down to here
-      - name: Checkout Repo
-        uses: actions/checkout@v2
       - name: Publish
         uses: github-actions-x/commit@v2.8
         with:

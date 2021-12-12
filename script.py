@@ -25,7 +25,7 @@ def gen_pack(items: list, filename: str = 'pack', output_folder: Path = Path('bu
 
     zip = make_archive(f'{output_folder}/{filename}', 'zip', temp)
 
-    rmtree(temp)
+    #rmtree(temp)
     return zip
 
 def copy_and_merge_jsons(src, dest):
