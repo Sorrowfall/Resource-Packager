@@ -1,4 +1,4 @@
-from os import getenv
+from os import getenv, listdir
 from pathlib import Path
 from shutil import copy2, make_archive, rmtree, copytree, make_archive
 from json import load, dump, JSONDecodeError
@@ -18,8 +18,11 @@ def gen_pack(items: list, filename: str = 'pack', output_folder: Path = Path('bu
     temp = Path(f'{output_folder}/temp')
     if not temp.exists(): temp.mkdir()
 
+    print(list(listdir))
     for item in items:
         path = Path(item)
+        print(path)
+        print(path.exists())
         if path.exists():
             copytree(path, temp, copy_function=copy_and_merge_jsons if optim_jsons else copy2, dirs_exist_ok=True)
 
