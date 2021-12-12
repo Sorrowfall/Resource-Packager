@@ -10,7 +10,7 @@ inputs:
     required: true
   output-folder:
     description: 'What directory to build files inside.'
-    default: 'build'
+    default: "'build'"
     required: false
   optimize-jsons:
     description: "Whether or not to optimize any .json (and .mcmeta json) files to lower their size."
