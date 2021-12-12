@@ -4,13 +4,15 @@ author: 'Sorrowfall'
 inputs:
   filename:
     description: 'What to name the built resource pack.'
+    default: 'none'
     required: true
   items:
     description: 'What folders / files to include in the resource pack.'
+    default: 'none'
     required: true
   output-folder:
     description: 'What directory to build files inside.'
-    default: "'build'"
+    default: 'build'
     required: false
   optimize-jsons:
     description: "Whether or not to optimize any .json (and .mcmeta json) files to lower their size."
@@ -27,5 +29,5 @@ runs:
   steps:
     #- run: python -m pip install -r requirements.txt
     #  shell: bash
-    - run: python ${{ github.action_path }}/script.py "[\"${{ inputs.filename }}\", \"${{ inputs.items }}\", \"${{ inputs.output-folder }}\", \"${{ inputs.optimize-jsons }}\", \"${{ inputs.gen-sha1 }}\"]"
+    - run: python ${{ github.action_path }}/script.py "${{ inputs.filename }}" "${{ inputs.items }}" "${{ inputs.output-folder }}" "${{ inputs.optimize-jsons }}" "${{ inputs.gen-sha1 }}"
       shell: bash
