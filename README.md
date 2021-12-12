@@ -1,12 +1,12 @@
-# Minecraft Resource Pack Builder
+# Resource-Packager
 
 Generate Minecraft resource packs from multiple directories, to create multiple resource packs with shared resources but different artstyles.
 
 ## About
 
-Resource Packager is a Github Action mainly for resource pack artists and server owners.
+Resource Packager is a Github Action intended for Minecraft resource pack artists and server owners.
 
-It provides an easy way to create different resource packs with different artstyles / resolutions but with shared data.
+It provides an easy way to package resource packs, as well as combined share data with different assets, for different resolution / artsytle packs.
 
 ## Usage
 
@@ -17,14 +17,17 @@ Rememember to edit `.github/workflows/build-packs.yml`
 
 | Name | Description | Default |
 | - | - | - |
-| `filename` | The name of the built pack | none |
-| `items` | The folders / files to be built into the pack | none |
-| `configuration-path` | Whether or not to generate a Sha1 hash of the built pack | `false` |
-| `output-folder` | The directory to output files in | `build` |
+| `filename` | What to name the built resource pack. | `None` |
+| `items` | What folders / files to include in the resource pack. | `None` |
+| `output-folder` | What directory to build files inside. | `'build/'` |
+| `optimize-jsons` | Whether or not to optimize any .json (and .mcmeta json) files to lower their size. | `True` |
+| `gen-sha1` | Whether or not to generate a `Sha1` hash of the built pack. Useful for Server Resource Packs. | `False` |
 
 ## Example Workflows
 
-Generate resource packs and push them to the `build` branch of your repository
+> If you want to generate multiple resource packs. just copy-paste the `Build resource pack` step.
+
+Generate resource packs and push them to the `build` branch of your repository.
 
 ```yaml
 name: build-resource-pack
@@ -44,14 +47,16 @@ jobs:
           # The directories / files to be built into the pack
           # Directories take priority as they go down the list, replacing any files from the above directories
           items: |
-            folder1
-            folder2
+            32_res_textures
+            data
+          # What directory to output files in
+          output-folder: build
+          # Whether or not to optimize .json (and .mcmeta json) files
+          optimize-json: true
           # Whether or not to generate a Sha1 hash of the built pack 
           # Useful for server resource packs
           # default: false
           gen-sha1: false
-          # The directory to output files in
-          output-folder: build
       - name: Publish
         uses: github-actions-x/commit@v2.8
         with:
@@ -82,14 +87,16 @@ jobs:
           # The directories / files to be built into the pack
           # Directories take priority as they go down the list, replacing any files from the above directories
           items: |
-            folder1
-            folder2
+            32_res_textures
+            data
+          # What directory to output files in
+          output-folder: build
+          # Whether or not to optimize .json (and .mcmeta json) files
+          optimize-json: true
           # Whether or not to generate a Sha1 hash of the built pack 
           # Useful for server resource packs
           # default: false
           gen-sha1: false
-          # The directory to output files in
-          output-folder: build
       - name: Publish
         uses: ncipollo/release-action@v1
         with:
