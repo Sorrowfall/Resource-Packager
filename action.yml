@@ -26,3 +26,4 @@ runs:
   using: "composite"
   steps:
     - run: python ${{ github.action_path }}/script.py "[\"${{ inputs.filename }}\", \"${{ inputs.items }}\", \"${{ inputs.output-folder }}\", \"${{ inputs.optimize-jsons }}\", \"${{ inputs.gen-sha1 }}\"]"
+      shell: bash
