@@ -4,8 +4,6 @@ from shutil import copy2, make_archive, rmtree, copytree
 from json import load, dump, JSONDecodeError
 from hashlib import sha1
 
-from os import listdir
-
 
 def gen_pack(items: list, filename: str = 'pack', output_folder: Path = Path('build/'), optim_jsons: bool = True):
     """Generates a compressed .zip file of Minecraft Resource Packs.
@@ -29,7 +27,6 @@ def gen_pack(items: list, filename: str = 'pack', output_folder: Path = Path('bu
 
     zip = make_archive(f'{output_folder}/{filename}', 'zip', temp)
 
-    print(listdir(temp))
     rmtree(temp)
     return zip
 
@@ -38,15 +35,15 @@ def copy_and_merge_jsons(src, dest):
         with open(src, 'r') as new:
             try:
                 json = load(new)
-            except JSONDecodeError as e:
-                return print(f"Invalid .json file '{src}'")
+            except JSONDecodeError:
+                return print(f"Invalid JSON file '{src}'")
         if Path(dest).exists():
             with open(dest, 'r') as original:
                 try:
                     original = load(original)
                     json = {**original, **json}
-                except JSONDecodeError as e:
-                    print(f"Invalid .json file '{dest}'")
+                except JSONDecodeError:
+                    print(f"Invalid JSON file '{dest}'")
                     return copy2(src, dest)
         with open(dest, 'w') as original:
             dump(json, original, separators=(',', ':'))
