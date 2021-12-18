@@ -29,6 +29,7 @@ def gen_pack(items: list, filename: str = 'pack', output_folder: Path = Path('bu
 
     zip = make_archive(f'{output_folder}/{filename}', 'zip', temp)
 
+    print(listdir(temp))
     rmtree(temp)
     return zip
 
@@ -95,8 +96,6 @@ if __name__ == '__main__':
     optimize_jsons = is_true(optimize_jsons)
 
     # Logic
-
-    print(listdir())
 
     pack_zip = gen_pack(items, filename, output_folder, optimize_jsons)
     if gen_sha1: 
