@@ -22,6 +22,8 @@ def gen_pack(items: list, filename: str = 'pack', output_folder: Path = Path('bu
         path = Path(item)
         if path.exists():
             copytree(path, temp, copy_function=copy_and_merge_jsons if optim_jsons else copy2, dirs_exist_ok=True)
+        else:
+            print(f"Unknown path '{path}'")
 
     zip = make_archive(f'{output_folder}/{filename}', 'zip', temp)
 
@@ -33,15 +35,15 @@ def copy_and_merge_jsons(src, dest):
         with open(src, 'r') as new:
             try:
                 json = load(new)
-            except JSONDecodeError as e:
-                return print(f"Invalid .json file '{src}'")
+            except JSONDecodeError:
+                return print(f"Invalid JSON file '{src}'")
         if Path(dest).exists():
             with open(dest, 'r') as original:
                 try:
                     original = load(original)
                     json = {**original, **json}
-                except JSONDecodeError as e:
-                    print(f"Invalid .json file '{dest}'")
+                except JSONDecodeError:
+                    print(f"Invalid JSON file '{dest}'")
                     return copy2(src, dest)
         with open(dest, 'w') as original:
             dump(json, original, separators=(',', ':'))
@@ -69,7 +71,7 @@ def pack_hash_sha1(filename: str, output_folder: Path = Path('build/')) -> str:
     return hash
 
 
-def is_true(val):
+def is_true(val) -> bool:
     return (str(val).lower()) in ("yes", "y", "true", "t", "1")
 
 class EnvironException(Exception):
@@ -84,7 +86,7 @@ if __name__ == '__main__':
 
     if filename == 'none': raise EnvironException("'filename' field is required")
     if items == 'none': raise EnvironException("'items' field is required")
-    items = items.split('\\n')
+    items = [i for i in items.split('\n') if i]
     output_folder = Path(output_folder)
     if not output_folder.exists(): output_folder.mkdir()
     gen_sha1 = is_true(gen_sha1)
