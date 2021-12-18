@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
     if filename == 'none': raise EnvironException("'filename' field is required")
     if items == 'none': raise EnvironException("'items' field is required")
-    items = items.split('\\n')
+    items = items.split('\n')
     output_folder = Path(output_folder)
     if not output_folder.exists(): output_folder.mkdir()
     gen_sha1 = is_true(gen_sha1)
