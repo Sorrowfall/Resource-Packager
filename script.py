@@ -4,6 +4,8 @@ from shutil import copy2, make_archive, rmtree, copytree
 from json import load, dump, JSONDecodeError
 from hashlib import sha1
 
+from os import listdir
+
 
 def gen_pack(items: list, filename: str = 'pack', output_folder: Path = Path('build/'), optim_jsons: bool = True):
     """Generates a compressed .zip file of Minecraft Resource Packs.
@@ -22,6 +24,8 @@ def gen_pack(items: list, filename: str = 'pack', output_folder: Path = Path('bu
         path = Path(item)
         if path.exists():
             copytree(path, temp, copy_function=copy_and_merge_jsons if optim_jsons else copy2, dirs_exist_ok=True)
+        else:
+            print(f"Unknown path '{path}'")
 
     zip = make_archive(f'{output_folder}/{filename}', 'zip', temp)
 
@@ -69,7 +73,7 @@ def pack_hash_sha1(filename: str, output_folder: Path = Path('build/')) -> str:
     return hash
 
 
-def is_true(val):
+def is_true(val) -> bool:
     return (str(val).lower()) in ("yes", "y", "true", "t", "1")
 
 class EnvironException(Exception):
@@ -91,6 +95,8 @@ if __name__ == '__main__':
     optimize_jsons = is_true(optimize_jsons)
 
     # Logic
+
+    print(listdir())
 
     pack_zip = gen_pack(items, filename, output_folder, optimize_jsons)
     if gen_sha1: 
