@@ -1,6 +1,6 @@
 [project]
 name = 'Resource-Packager'
-version = 2.3
+version = '2.3'
 authors = [
     { name = "Stefan Nešić" }
 ]
