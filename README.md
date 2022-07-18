@@ -1,34 +1,27 @@
 # Resource-Packager
 
-Generate Minecraft resource packs from multiple directories, to create multiple resource packs with shared resources but different artstyles.
-
 ## About
 
-Resource Packager is a Github Action intended for Minecraft resource pack artists and server owners.
+**Resource-Packager** is a CLI tool and a Github Workflow action used to make Minecraft Resource Packs out of multiple different directories.
 
-It provides an easy way to package resource packs, as well as combined share data with different assets, for different resolution / artsytle packs.
+This tool is intended to be used by Resource Pack creators who are working with multiple art styles or resolutions, but with a common set of data like sounds or language files.
 
-## Usage
+## Usage - CLI
 
-**[Click Here](https://github.com/Sorrowfall/RP-Example/generate)** to create a new repository with the workflow already set up.
-Rememember to edit `.github/workflows/build-packs.yml`
+To use Resource-Packager as a CLI tool, you first have to download it using `pip install git+https://github.com/Sorrowfall/Resource-Packager`
 
-### Inputs
+After it is installed, use `python -m resource-packager -h` to view how to use the tool.
 
-| Name | Description | Default |
-| - | - | - |
-| `filename` | What to name the built resource pack. | `None` |
-| `items` | What folders / files to include in the resource pack. | `None` |
-| `output-folder` | What directory to build files inside. | `'build/'` |
-| `optimize-jsons` | Whether or not to optimize any .json (and .mcmeta json) files to lower their size. | `True` |
-| `gen-sha1` | Whether or not to generate a `Sha1` hash of the built pack. Useful for Server Resource Packs. | `False` |
+## Usage - Github Workflow
 
-## Example Workflows
+> Click [here](https://github.com/Sorrowfall/RP-Example/generate) to create a new repository with the workflow already set up.
+Rememember to edit `.github/workflows/build-packs.yml` to set up Resource-Packager correctly for your pack.
 
-> If you want to generate multiple resource packs. just copy-paste the `Build resource pack` step.
+To automatically generate Resource Packs inside of your repository, you first have to make a new file named `resource-pack-gen.yml` inside of the `.github/workflows/` directory.
 
-Generate resource packs and push them to the `build` branch of your repository.
 
+### Example File
+`resource-pack.gen.yml`
 ```yaml
 name: build-resource-pack
 on: [push]
@@ -42,21 +35,13 @@ jobs:
       - name: Build Pack
         uses: Sorrowfall/Resource-Packager@main
         with:
-          # The name of the built pack
-          filename: MyPack
-          # The directories / files to be built into the pack
-          # Directories take priority as they go down the list, replacing any files from the above directories
-          items: |
-            pack_textures
-            pack_data
-          # What directory to output files in
-          output-folder: build
-          # Whether or not to optimize .json (and .mcmeta json) files
-          optimize-jsons: true
-          # Whether or not to generate a Sha1 hash of the built pack 
-          # Useful for server resource packs
-          # default: false
-          gen-sha1: false
+          items: | # A list of directories to create the Resource Pack with
+            pack_data/
+            pack_textures/
+            # Directories take priority as they go down the list, replacing any files from the above directories
+          name: MyPack # The name of the Resource Pack
+          output-directory: build # What directory to save the Resource Pack in
+          optimize-jsons: true # Whether or not to optimize JSON file
       # copy-paste down to here
       - name: Publish
         uses: EndBug/add-and-commit@v7
@@ -68,44 +53,29 @@ jobs:
           message: 'Build pack(s)'
 ```
 
-Generate resource packs and make a new release
+> If you want to generate multiple resource packs. just copy-paste the `Build resource pack` step.
+
+> You can also create a new Github release of the Resource Pack by adding another step: 
 
 ```yaml
-name: build-resource-pack
-on: [push]
-jobs:
-  check-bats-version:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-      # copy-paste this part for however many packs you want to build
-      - name: Build Pack
-        uses: Sorrowfall/Resource-Packager@main
-        with:
-          # The name of the built pack
-          filename: MyPack
-          # The directories / files to be built into the pack
-          # Directories take priority as they go down the list, replacing any files from the above directories
-          items: |
-            pack_textures
-            pack_data
-          # What directory to output files in
-          output-folder: build
-          # Whether or not to optimize .json (and .mcmeta json) files
-          optimize-jsons: true
-          # Whether or not to generate a Sha1 hash of the built pack 
-          # Useful for server resource packs
-          # default: false
-          gen-sha1: false
-      # copy-paste down to here
-      - name: Create Release
-        uses: meeDamian/github-release@2.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ github.event.head_commit.message }}
-          tag: test
-          gzip: false
-          files: >
-            output/MyPack.zip
+    - name: Create Release
+      uses: meeDamian/github-release@2.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        name: ${{ github.event.head_commit.message }}
+        tag: test
+        gzip: false
+        files: >
+          build/MyPack.zip
 ```
+
+### Inputs
+
+| Name | Description | Default |
+| - | - | - |
+| `items` | What folders / files to include in the resource pack. | `None` |
+| `name` | What to name the built resource pack. | `'pack'` |
+| `output-directory` | What directory to build files inside. | `'build/'` |
+| `optimize-jsons` | Whether or not to optimize any .json (and .mcmeta json) files to lower their size. | `True` |
+
+This saves the created resource pack on a new `build` branch of the repository.

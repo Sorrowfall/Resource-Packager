@@ -2,33 +2,31 @@ name: 'Resource Packager'
 description: 'Generate .zip files (and sha1 hashes) from files for Minecraft Server Resource Packs.'
 author: 'Sorrowfall'
 inputs:
-  filename:
-    description: 'What to name the built resource pack.'
-    default: 'none'
+  parts:
+    description: 'A list of directories to make the Resource Pack out of.'
     required: true
-  items:
-    description: 'What folders / files to include in the resource pack.'
-    default: 'none'
-    required: true
-  output-folder:
-    description: 'What directory to build files inside.'
+  name:
+    description: 'What to name the created Resource Pack.'
+    default: 'pack'
+    required: false
+  output-directory:
+    description: 'What directory to make the Resource Pack in.'
     default: 'build'
     required: false
   optimize-jsons:
-    description: "Whether or not to optimize any .json (and .mcmeta json) files to lower their size."
+    description: "Whether or not to optimize JSON files."
     default: 'true'
     required: false
-  gen-sha1:
-    description: 'Whether or not to generate a Sha1 hash of the built pack. Useful for Server Resource Packs.'
-    default: 'false'
-    required: false
+outputs:
+  parts:
+    description: 'The SHA-1 hash of the Resource Pack.'
+    value: ${{ steps.resource-packager.outputs.hash }}
 branding:
   icon: "folder-plus"
   color: "red"
 runs:
   using: "composite"
   steps:
-    #- run: python -m pip install -r requirements.txt
-    #  shell: bash
-    - run: python ${{ github.action_path }}/script.py "${{ inputs.filename }}" "${{ inputs.items }}" "${{ inputs.output-folder }}" "${{ inputs.optimize-jsons }}" "${{ inputs.gen-sha1 }}"
+    - id: resource-packager
+      run: echo $(python ${{ github.action_path }}/resource-packager -g -n ${{ inputs.name }} -d ${{ inputs.output-directory }} -o ${{ inputs.optimize-jsons }} -p ${{ inputs.items }})
       shell: bash
