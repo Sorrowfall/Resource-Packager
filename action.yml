@@ -23,6 +23,7 @@ outputs:
     value: ${{ steps.resource-packager.outputs.hash }}
 branding:
   icon: "folder-plus"
+  color: "red"
 runs:
   using: "composite"
   steps:
