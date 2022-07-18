@@ -35,7 +35,7 @@ jobs:
       - name: Build Pack
         uses: Sorrowfall/Resource-Packager@main
         with:
-          parts: | # A list of directories to create the Resource Pack with
+          parts: # A list of directories to create the Resource Pack with
             pack_data/
             pack_textures/
             # Directories take priority as they go down the list, replacing any files from the above directories
