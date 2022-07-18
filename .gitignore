@@ -1,6 +1,6 @@
-build/
+.vscode
 __pycache__/
+
+build/
 pack_textures/
 pack_data/
-.env
-test.py
