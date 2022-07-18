@@ -9,18 +9,23 @@ inputs:
     description: 'What to name the created Resource Pack.'
     default: 'pack'
     required: false
-  output_directory:
+  output-directory:
     description: 'What directory to make the Resource Pack in.'
     default: 'build'
     required: false
-  optimize_jsons:
+  optimize-jsons:
     description: "Whether or not to optimize JSON files."
     default: 'true'
     required: false
+outputs:
+  parts:
+    description: 'The SHA-1 hash of the Resource Pack.'
+    value: ${{ steps.resource-packager.outputs.hash }}
 branding:
   icon: "folder-plus"
 runs:
   using: "composite"
   steps:
-    - run: python ${{ github.action_path }}/resource-packager -p ${{ inputs.items }} -n ${{ inputs.name }} -d ${{ inputs.output_directory }} -o ${{ inputs.optimize_jsons }}
+    - id: resource-packager
+      run: echo $(python ${{ github.action_path }}/resource-packager -g -n ${{ inputs.name }} -d ${{ inputs.output-directory }} -o ${{ inputs.optimize-jsons }} -p ${{ inputs.items }})
       shell: bash
