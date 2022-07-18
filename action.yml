@@ -11,7 +11,7 @@ inputs:
     required: false
   output-directory:
     description: 'What directory to make the Resource Pack in.'
-    default: 'build'
+    default: 'build/'
     required: false
   optimize-jsons:
     description: "Whether or not to optimize JSON files."
@@ -28,5 +28,5 @@ runs:
   using: "composite"
   steps:
     - id: resource-packager
-      run: echo $(python ${{ github.action_path }}/resource-packager -g -n ${{ inputs.name }} -d ${{ inputs.output-directory }} -o ${{ inputs.optimize-jsons }} -p ${{ inputs.items }})
+      run: echo $(python ${{ github.action_path }}/resource-packager -g -n ${{ inputs.name }} -d ${{ inputs.output-directory }} -o ${{ inputs.optimize-jsons }} -p ${{ inputs.parts }})
       shell: bash
