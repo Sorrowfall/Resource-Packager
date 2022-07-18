@@ -35,7 +35,7 @@ jobs:
       - name: Build Pack
         uses: Sorrowfall/Resource-Packager@main
         with:
-          items: | # A list of directories to create the Resource Pack with
+          parts: | # A list of directories to create the Resource Pack with
             pack_data/
             pack_textures/
             # Directories take priority as they go down the list, replacing any files from the above directories
@@ -73,7 +73,7 @@ jobs:
 
 | Name | Description | Default |
 | - | - | - |
-| `items` | What folders / files to include in the resource pack. | `None` |
+| `parts` | What folders / files to include in the resource pack. | `None` |
 | `name` | What to name the built resource pack. | `'pack'` |
 | `output-directory` | What directory to build files inside. | `'build/'` |
 | `optimize-jsons` | Whether or not to optimize any .json (and .mcmeta json) files to lower their size. | `True` |
