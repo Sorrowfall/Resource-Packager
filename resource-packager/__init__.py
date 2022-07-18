@@ -48,6 +48,7 @@ class Resource_Pack:
         self.parts = parts
         self.name = name
         self.output = Path(output_dir)
+        if not self.output.exists(): self.output.mkdir()
         self.copy_function = copy_and_merge_jsons if optimize_jsons else copy2
         self.keep_temp = keep_temp
 
